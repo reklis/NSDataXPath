@@ -149,6 +149,7 @@ print_xpath_nodes(xmlNodeSetPtr nodes, FILE* output) {
                 NSString* k = nsxmlstr(attribute->name);
                 NSString* v = nsxmlstr(xmlGetProp(currentNode, attribute->name));
                 [nodeAttributeDictionary setValue:v forKey:k];
+                attribute = attribute->next;
             }
             r.attributes = nodeAttributeDictionary;
         }
