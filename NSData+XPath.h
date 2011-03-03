@@ -10,6 +10,7 @@
 @property (readwrite,nonatomic,retain) NSString* xpathQuery;
 @property (readwrite,nonatomic,retain) NSString* name;
 @property (readwrite,nonatomic,retain) NSString* content;
+@property (readwrite,nonatomic,retain) NSDictionary* attributes;
 
 @end
 

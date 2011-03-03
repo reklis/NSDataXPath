@@ -9,12 +9,13 @@
 @synthesize xpathQuery;
 @synthesize name;
 @synthesize content;
+@synthesize attributes;
 
 @end
 
 
 // adapted from http://www.xmlsoft.org/examples/xpath1.c
-
+// don't forget to include $(SDKROOT)/usr/include/libxml2 in the search header path
 
 #import <libxml/tree.h>
 #import <libxml/parser.h>
@@ -68,6 +69,9 @@ print_xpath_nodes(xmlNodeSetPtr nodes, FILE* output) {
         }
     }
 }*/
+
+#define nsxmlstr( S ) [NSString stringWithCString:(const char *) S encoding:NSUTF8StringEncoding]
+
 
 @implementation NSData(XPath)
 
@@ -135,8 +139,19 @@ print_xpath_nodes(xmlNodeSetPtr nodes, FILE* output) {
         
         XPathResult* r = [[[XPathResult alloc] init] autorelease];
         r.xpathQuery = query;
-        r.name = [NSString stringWithCString:(const char *)currentNode->name encoding:NSUTF8StringEncoding];
-        r.content = [NSString stringWithCString:(const char *)xmlNodeGetContent(currentNode) encoding:NSUTF8StringEncoding];
+        r.name = nsxmlstr(currentNode->name);
+        r.content = nsxmlstr(xmlNodeGetContent(currentNode));
+        
+        xmlAttrPtr attribute = currentNode->properties;
+        if (attribute) {
+            NSMutableDictionary* nodeAttributeDictionary = [NSMutableDictionary dictionary];
+            while (attribute) {
+                NSString* k = nsxmlstr(attribute->name);
+                NSString* v = nsxmlstr(xmlGetProp(currentNode, attribute->name));
+                [nodeAttributeDictionary setValue:v forKey:k];
+            }
+            r.attributes = nodeAttributeDictionary;
+        }
         
         block(r);
     }
