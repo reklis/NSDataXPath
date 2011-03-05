@@ -22,8 +22,13 @@
 #import <libxml/xpath.h>
 #import <libxml/xpathInternals.h>
 
-#define nsxmlstr( S ) [NSString stringWithCString:(const char *) S encoding:NSUTF8StringEncoding]
+#define nsxmlstr( _S_ ) [NSString stringWithCString:(const char *) _S_ encoding:NSUTF8StringEncoding]
 
+id NSStringMake(xmlChar* x) {
+    NSString* s = nsxmlstr(x);
+    xmlFree(x);
+    return s;
+}
 
 @implementation NSData(XPath)
 
@@ -87,17 +92,31 @@
         //xmlElemDump(f, doc, currentNode);
         
         XPathResult* r = [[[XPathResult alloc] init] autorelease];
-        r.xpath = nsxmlstr(xmlGetNodePath(currentNode));
-        r.name = nsxmlstr(currentNode->name);
-        r.content = nsxmlstr(xmlNodeGetContent(currentNode));
+        
+        NSString* nodeName = nsxmlstr(currentNode->name);
+        r.name = nodeName;
+        [nodeName release];
+        
+        NSString* xpath = NSStringMake(xmlGetNodePath(currentNode));
+        r.xpath = xpath;
+        [xpath release];
+        
+        NSString* content = NSStringMake(xmlNodeGetContent(currentNode));
+        r.content = content;
+        [content release];
         
         xmlAttrPtr attribute = currentNode->properties;
         if (attribute) {
             NSMutableDictionary* nodeAttributeDictionary = [NSMutableDictionary dictionary];
             while (attribute) {
+                NSString* v = NSStringMake(xmlGetProp(currentNode, attribute->name));
+                
                 NSString* k = nsxmlstr(attribute->name);
-                NSString* v = nsxmlstr(xmlGetProp(currentNode, attribute->name));
                 [nodeAttributeDictionary setValue:v forKey:k];
+                
+                [v release];
+                [k release];
+                
                 attribute = attribute->next;
             }
             r.attributes = nodeAttributeDictionary;
