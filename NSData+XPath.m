@@ -6,7 +6,7 @@
 
 @implementation XPathResult
 
-@synthesize xpathQuery;
+@synthesize xpath;
 @synthesize name;
 @synthesize content;
 @synthesize attributes;
@@ -79,7 +79,7 @@
     //FILE* f = fopen("/xpath.log", "w");
     
     int size = (nodes) ? nodes->nodeNr : 0;
-    NSLog(@"Nodes Matched: %d", size);
+    NSLog(@"%@ Matched (%d) Nodes", query, size);
     
     for (int i = 0; i < size; ++i) {
         xmlNodePtr currentNode = nodes->nodeTab[i];
@@ -87,7 +87,7 @@
         //xmlElemDump(f, doc, currentNode);
         
         XPathResult* r = [[[XPathResult alloc] init] autorelease];
-        r.xpathQuery = query;
+        r.xpath = nsxmlstr(xmlGetNodePath(currentNode));
         r.name = nsxmlstr(currentNode->name);
         r.content = nsxmlstr(xmlNodeGetContent(currentNode));
         
@@ -114,8 +114,10 @@
     xmlFreeDoc(doc);
 }
 
-- (NSArray*) findXPath:(NSString *)query usingNamespaces:(NSDictionary *)namespaces
+- (NSArray*) findXPath:(NSString*)query usingNamespaces:(NSDictionary *)namespaces
 {
+    if (!query) return nil;
+    
     __block NSMutableArray* matches = [NSMutableArray array];
     
     [self findXPath:query
@@ -128,5 +130,16 @@
     return matches;
 }
 
+- (NSString*) contentAtXPath:(NSString*)query usingNamespaces:(NSDictionary *)namespaces
+{
+    if (!query) return nil;
+    
+    NSArray* a = [self findXPath:query usingNamespaces:namespaces];
+    if ([a count] > 0) {
+        return [((XPathResult*) [a objectAtIndex:0]) content];
+    } else {
+        return nil;
+    }
+}
 
 @end
