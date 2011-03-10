@@ -112,7 +112,7 @@ id NSStringMake(xmlChar* x) {
                 NSString* v = NSStringMake(xmlGetProp(currentNode, attribute->name));
                 
                 NSString* k = nsxmlstr(attribute->name);
-                [nodeAttributeDictionary setValue:v forKey:k];
+                [nodeAttributeDictionary setObject:v forKey:k];
                 
                 [v release];
                 [k release];
