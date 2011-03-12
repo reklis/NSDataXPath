@@ -84,7 +84,7 @@ id NSStringMake(xmlChar* x) {
     //FILE* f = fopen("/xpath.log", "w");
     
     int size = (nodes) ? nodes->nodeNr : 0;
-    NSLog(@"%@ Matched (%d) Nodes", query, size);
+    //NSLog(@"%@ Matched (%d) Nodes", query, size);
     
     for (int i = 0; i < size; ++i) {
         xmlNodePtr currentNode = nodes->nodeTab[i];
