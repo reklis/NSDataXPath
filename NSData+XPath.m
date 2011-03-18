@@ -11,6 +11,14 @@
 @synthesize content;
 @synthesize attributes;
 
+- (void)dealloc {
+    [xpath release];
+    [name release];
+    [content release];
+    [attributes release];
+    [super dealloc];
+}
+
 @end
 
 
@@ -95,15 +103,12 @@ id NSStringMake(xmlChar* x) {
         
         NSString* nodeName = nsxmlstr(currentNode->name);
         r.name = nodeName;
-        [nodeName release];
         
         NSString* xpath = NSStringMake(xmlGetNodePath(currentNode));
         r.xpath = xpath;
-        [xpath release];
         
         NSString* content = NSStringMake(xmlNodeGetContent(currentNode));
         r.content = content;
-        [content release];
         
         xmlAttrPtr attribute = currentNode->properties;
         if (attribute) {
@@ -113,9 +118,6 @@ id NSStringMake(xmlChar* x) {
                 
                 NSString* k = nsxmlstr(attribute->name);
                 [nodeAttributeDictionary setObject:v forKey:k];
-                
-                [v release];
-                [k release];
                 
                 attribute = attribute->next;
             }
